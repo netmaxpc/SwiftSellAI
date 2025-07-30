@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SwiftSell AI</string>
+    <string name="title_activity_main">SwiftSell AI</string>
+    <string name="package_name">com.swiftsell.app</string>
+    <string name="custom_url_scheme">com.swiftsell.app</string>
+</resources>

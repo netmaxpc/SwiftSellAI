@@ -1,0 +1,7 @@
+{
+  "name": "SwiftSell AI",
+  "description": "An AI-powered application to help you quickly identify, describe, price, and list items for sale on various online marketplaces. Just upload a few photos, and let the AI handle the rest.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

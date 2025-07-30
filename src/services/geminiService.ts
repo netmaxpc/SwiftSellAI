@@ -2,13 +2,13 @@
 import { GoogleGenAI, GenerateContentResponse, Type, Chat } from "@google/genai";
 import { ItemData, GroundingChunk, ChatMessage } from '../types';
 
-if (!process.env.API_KEY) {
-  // This check happens at runtime, but Vite's define plugin replaces `process.env.API_KEY` at build time.
-  // If VITE_API_KEY is not set in .env, it will be replaced with 'undefined', and this error will be thrown.
-  throw new Error("API_KEY environment variable not set. Please create a .env.local file with VITE_API_KEY=YOUR_KEY.");
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY;
+
+if (!API_KEY) {
+  console.warn('Gemini API key not found. Using mock responses for testing.');
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
 const chatModel = 'gemini-2.5-flash';
 const searchModel = 'gemini-2.5-flash';
 
@@ -31,6 +31,33 @@ const fileToGenerativePart = async (file: File) => {
 export const analyzeImages = async (images: File[]): Promise<{ itemData: ItemData, sources: GroundingChunk[] }> => {
   if (images.length === 0) {
     throw new Error("No images provided for analysis.");
+  }
+
+  // If no API key is available, return mock data
+  if (!ai || !API_KEY) {
+    console.log('Using mock analysis data for testing');
+    return {
+      itemData: {
+        title: "Premium Quality Item - Great Condition",
+        description: "This is a high-quality item in excellent condition. Perfect for collectors or everyday use. Features include durable construction, attractive design, and great functionality. Don't miss this opportunity to own this fantastic piece!",
+        price: "$25.00",
+        category: "Electronics",
+        condition: "Like New",
+        tags: ["quality", "durable", "collectible", "functional"]
+      },
+      sources: [
+        {
+          title: "Similar Item on eBay",
+          link: "https://ebay.com/example",
+          snippet: "Similar items selling for $20-30"
+        },
+        {
+          title: "Amazon Listing",
+          link: "https://amazon.com/example",
+          snippet: "Comparable product priced at $28"
+        }
+      ]
+    };
   }
 
   const imageParts = await Promise.all(images.map(fileToGenerativePart));
@@ -100,11 +127,18 @@ export const analyzeImages = async (images: File[]): Promise<{ itemData: ItemDat
 let assistantChat: Chat | null = null;
 
 export const getAssistantResponse = async (history: ChatMessage[]): Promise<string> => {
+  // If no API key is available, return mock response
+  if (!ai || !API_KEY) {
+    const lastMessage = history[history.length - 1];
+    console.log('Using mock assistant response for testing');
+    return `Thanks for your question! I'm here to help you with SwiftSell AI. ${lastMessage?.content ? `Regarding "${lastMessage.content}", ` : ''}I'd be happy to assist you with listing items, pricing strategies, and marketplace optimization. However, I'm currently running in demo mode. Please configure your API keys for full functionality.`;
+  }
+
   if (!assistantChat) {
-    assistantChat = ai.chats.create({
+    assistantChat = ai.models.startChat({
       model: chatModel,
+      systemInstruction: "You are a friendly and helpful AI assistant for the 'SwiftSell AI' app. Your purpose is to guide users on how to operate the application. Keep your answers concise and easy to understand. The user is on a mobile device.",
       config: {
-        systemInstruction: "You are a friendly and helpful AI assistant for the 'SwiftSell AI' app. Your purpose is to guide users on how to operate the application. Keep your answers concise and easy to understand. The user is on a mobile device.",
         temperature: 0.4,
         topP: 0.8,
         topK: 40,

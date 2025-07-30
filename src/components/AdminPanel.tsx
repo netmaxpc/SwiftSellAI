@@ -47,7 +47,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Admin authentication
-  const ADMIN_PASSWORD = 'SwiftSellAdmin2024'; // Change this to your preferred password
+  const ADMIN_PASSWORD = 'Max10231985'; // Change this to your preferred password
 
   useEffect(() => {
     if (isAuthenticated) {

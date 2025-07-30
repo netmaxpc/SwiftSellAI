@@ -51,6 +51,9 @@ export const analyzeImages = async (images: File[]): Promise<{ itemData: ItemDat
         },
         required: ["title", "description"],
       },
+      temperature: 0.3,
+      topP: 0.8,
+      topK: 40,
     }
   });
   
@@ -74,6 +77,9 @@ export const analyzeImages = async (images: File[]): Promise<{ itemData: ItemDat
       contents: { parts: [...imageParts, { text: pricePrompt }] },
       config: {
         tools: [{googleSearch: {}}],
+        temperature: 0.2,
+        topP: 0.7,
+        topK: 30,
       }
   });
 
@@ -99,6 +105,9 @@ export const getAssistantResponse = async (history: ChatMessage[]): Promise<stri
       model: chatModel,
       config: {
         systemInstruction: "You are a friendly and helpful AI assistant for the 'SwiftSell AI' app. Your purpose is to guide users on how to operate the application. Keep your answers concise and easy to understand. The user is on a mobile device.",
+        temperature: 0.4,
+        topP: 0.8,
+        topK: 40,
       },
     });
   }
